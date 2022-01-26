@@ -6,34 +6,33 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import com.app.model.Student;
 
-public class loginController {
+public class LoginController {
 	Connection conn;
 
-	public loginController(Connection conn) {
+	public LoginController(Connection conn) {
 		this.conn = conn;
 	}
 
-	public boolean login(Student student) throws SQLException {
+	public boolean login(Integer id,String password) throws SQLException {
 		Boolean isAllowed;
-		if(student == null) return false;
-		Integer id = student.getId();
+		String strId = id.toString();
 		// if id is valid
-		// Boolean idIsValid = validate(id); // add to 23 line
+		Boolean idIsValid = validate(strId); 
 		// if id is exist
-		Boolean studentIdExist = verifyId(id);
+		Boolean studentIdExist = verifyId(strId);
 		// validate if password is ok
-		Boolean passwordAllow = verifyPassword(student.getPassword());
-		isAllowed = passwordAllow && studentIdExist; // --> passwordAllow && studentIdExist && idIsValid
+		Boolean passwordAllow = verifyPassword(password,strId);
+		isAllowed = passwordAllow && studentIdExist && idIsValid; // --> passwordAllow && studentIdExist && idIsValid
 		return isAllowed;
 	}
 
-	private Boolean validate(Integer id) {
+	private Boolean validate(String id) {
 		// add more validations
-		String idStr = "" + id;
-		return id != null && idStr.length() == 9;
+		boolean isMatches = id.matches("[0-9]+");
+		return id != null && id.length() == 9 && isMatches;
 	}
 
-	private Boolean verifyId(Integer id) throws SQLException {
+	private Boolean verifyId(String id) throws SQLException {
 		String queryId = "SELECT * FROM students WHERE studentId=" + id + ";";
 		System.err.println(queryId);
 		Statement st = conn.createStatement();
@@ -44,9 +43,9 @@ public class loginController {
 		return studentId.equals(id+"");
 	}
 	
-	private Boolean verifyPassword(String password) throws SQLException {
+	private Boolean verifyPassword(String password,String id) throws SQLException {
 		//add more validations in password
-		String queryPass = "SELECT * FROM students WHERE password=" + password + ";";
+		String queryPass = "SELECT password FROM students WHERE password=" + "'"+password +"'"+ "and studentId="+id+ ";";
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery(queryPass);
 		if (!rs.next())

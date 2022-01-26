@@ -12,7 +12,6 @@ public class Course {
 	
 	public Course() {}
 	public Course(String courseId, int year, String courseName, Date startDate, Date finalDate) {
-		super();
 		this.courseId = courseId;
 		this.year = year;
 		this.courseName = courseName;
